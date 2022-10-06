@@ -9,17 +9,19 @@ class MyWidget(QMainWindow, Ui_Form):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.notes = []
         self.load_mp3(
-            '/Users/viacheslav/PycharmProjects/YLA2022Second/Multimedia/MediaTest.mp3')
-        self.playBtn.clicked.connect(self.player.play)
-        self.pauseBtn.clicked.connect(self.player.pause)
-        self.stopBtn.clicked.connect(self.player.stop)
+            '/Users/viacheslav/Downloads/24-piano-keys/key01.mp3')
+        self.playBtn.clicked.connect(self.notes[-1].play)
+        self.pauseBtn.clicked.connect(self.notes[-1].play)
+        self.stopBtn.clicked.connect(self.notes[-1].stop)
 
     def load_mp3(self, filename):
         media = QtCore.QUrl.fromLocalFile(filename)
         content = QtMultimedia.QMediaContent(media)
-        self.player = QtMultimedia.QMediaPlayer()
-        self.player.setMedia(content)
+        self.notes.append(QtMultimedia.QMediaPlayer())
+        self.notes[-1].setMedia(content)
+        self.notes[-1].setDuration(100)
 
 
 app = QApplication(sys.argv)
