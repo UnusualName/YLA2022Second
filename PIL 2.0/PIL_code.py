@@ -1,9 +1,9 @@
 import sys
 
+from PIL import Image
+from PIL.ImageQt import ImageQt, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PyQt5.QtCore import QRegExp
-from PyQt5.QtGui import QRegExpValidator
-from PIL_UI import Ui_MainWindow
+from PILUI import Ui_MainWindow
 
 
 class MyWidget(QMainWindow, Ui_MainWindow):
@@ -11,38 +11,44 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
-        self.pushButton.clicked.connect(self.imp)
-
-        self.pushButton_2.clicked.connect(self.take)
-
-        reg_ex = QRegExp("[1-3]{,1}")
-        input_validator = QRegExpValidator(reg_ex, self.lineEdit_2)
-        self.lineEdit_2.setValidator(input_validator)
         self.fname = QFileDialog.getOpenFileName(
             self, 'Выбрать картинку', '',
             'Картинка (*.jpg);;Картинка (*.png);;Все файлы (*)')[0]
+        self.orig = Image.open(self.fname)
+        self.now = Image.open(self.fname)
+        self.a = ImageQt(self.now)
+        self.pixmap = QPixmap.fromImage(self.a)
+        self.image.setPixmap(self.pixmap)
+        self.pushButton_1.clicked.connect(self.set)
+        self.pushButton_2.clicked.connect(self.set)
+        self.pushButton_3.clicked.connect(self.set)
+        self.pushButton_4.clicked.connect(self.set)
+        self.pushButton_5.clicked.connect(self.rotate)
+        self.pushButton_6.clicked.connect(self.rotate)
 
+    def set(self):
+        self.now = self.orig.copy()
+        pixels = self.now.load()
+        x, y = self.now.size
+        if self.sender().objectName()[-1] != '4':
+            for i in range(x):
+                for j in range(y):
+                    rgb = [0, 0, 0]
+                    rgb[int(self.sender().objectName()[-1]) - 1] = pixels[i, j][
+                        int(self.sender().objectName()[-1]) - 1]
+                    pixels[i, j] = tuple(rgb)
 
-    def imp(self):
-        self.lcdNumber.display(self.lineEdit.text())
-        self.lineEdit.setReadOnly(True)
+        self.a = ImageQt(self.now)
+        self.pixmap = QPixmap.fromImage(self.a)
+        self.image.setPixmap(self.pixmap)
 
-    def take(self):
-        self.lcdNumber.display(self.lcdNumber.value() - int(self.lineEdit_2.text()))
-        self.listWidget.addItem(f'Игрок взял - {self.lineEdit_2.text()}')
-        if self.lcdNumber.value() == 0:
-            self.listWidget.addItem(f'Победа Игрока!')
-
-        elif self.lcdNumber.value() % 4 == 0:
-            self.listWidget.addItem(f'ИИ взял - 1')
-            self.lcdNumber.display(self.lcdNumber.value() - 1)
-        else:
-            self.listWidget.addItem(f'ИИ взял - {int(self.lcdNumber.value() % 4)}')
-            self.lcdNumber.display(self.lcdNumber.value() - self.lcdNumber.value() % 4)
-
-        if self.lcdNumber.value() == 0:
-            self.listWidget.addItem(f'Победа ИИ!')
-            self.pushButton_2.hide()
+    def rotate(self):
+        self.orig = self.orig.rotate(90 - 180 * (int(self.sender().objectName()[-1]) - 5),
+                                     expand=True)
+        self.now = self.now.rotate(90 - 180 * (int(self.sender().objectName()[-1]) - 5), expand=True)
+        self.a = ImageQt(self.now)
+        self.pixmap = QPixmap.fromImage(self.a)
+        self.image.setPixmap(self.pixmap)
 
 
 if __name__ == '__main__':
@@ -50,5 +56,3 @@ if __name__ == '__main__':
     ex = MyWidget()
     ex.show()
     sys.exit(app.exec_())
-
-
