@@ -1,3 +1,7 @@
+from PyQt5 import QtMultimedia
+from PyQt5 import QtCore
+
+
 class Note:
     def __init__(self, pitch):
         self.pitch = pitch
@@ -8,6 +12,13 @@ class Note:
 
     def __add__(self, other):
         return self.STAN[(int(self) + other) % len(self.STAN)]
+
+    def lower_file(self):
+        filenum = str((int(self) + 7) + 1)
+        filename = '/Users/viacheslav/PycharmProjects/YLA2022Second/PyMusicProject/24-piano-keys/key' + filenum.rjust(2, '0') + '.mp3'
+        media = QtCore.QUrl.fromLocalFile(filename)
+        content = QtMultimedia.QMediaContent(media)
+        return content
 
 
 class Harmony:
